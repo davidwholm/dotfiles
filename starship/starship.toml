@@ -1,0 +1,3 @@
+[character]
+success_symbol = "[λ](bold yellow)"
+error_symbol = "[λ](bold red)"
