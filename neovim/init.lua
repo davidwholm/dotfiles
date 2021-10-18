@@ -56,8 +56,6 @@ require('packer').startup(function()
     cmd = { 'SudaWrite', 'SudaRead' }
   }
 
-  use 'lukas-reineke/indent-blankline.nvim'
-
   use { 
     'lewis6991/gitsigns.nvim', 
     config = function()
@@ -165,7 +163,7 @@ require('packer').startup(function()
       local capabilities = vim.lsp.protocol.make_client_capabilities()
       capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
-      local servers = { 'clangd', 'zls' }
+      local servers = { 'clangd', 'racket_langserver' }
 
       for _, lsp in ipairs(servers) do
         nvim_lsp[lsp].setup {

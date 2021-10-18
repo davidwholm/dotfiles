@@ -27,9 +27,9 @@ output HDMI-A-2 resolution 1920x1080 position 1920,0
 
 ### Idle configuration
 exec swayidle -w \
-     timeout 300 'swaylock -f -c 000000' \
-     timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
-     before-sleep 'swaylock -f -c 000000'
+      timeout 300 'swaylock -f -c 000000' \
+      timeout 600 'swaymsg "output * dpms off"' resume 'swaymsg "output * dpms on"' \
+      before-sleep 'swaylock -f -c 000000'
 
 ### Input configuration
 input * {
@@ -131,6 +131,9 @@ input "1739:52581:MSFT0001:01_06CB:CD65_Touchpad" {
     # Show the next scratchpad window or hide the focused scratchpad window.
     # If there are multiple scratchpad windows, this command cycles through them.
     bindsym $mod+minus scratchpad show
+
+    bindsym XF86MonBrightnessUp exec light -A 1
+    bindsym XF86MonBrightnessDown exec light -U 1
 
 mode "resize" {
     bindsym $left resize shrink width 10px
