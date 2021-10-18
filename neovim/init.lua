@@ -23,14 +23,22 @@ require('packer').startup(function()
     'Pocco81/Catppuccino.nvim',
     config = function()
       require('catppuccino').setup({
-        colorscheme = "dark_catppuccino",
+        colorscheme = 'dark_catppuccino'
       })
-      if not vim.g.colorscheme_set then 
+      if not vim.g.colorscheme_set then
         vim.cmd([[colorscheme catppuccino]])
         vim.g.colorscheme_set = true
       end
     end
   }
+
+  use {
+    'ojroques/nvim-hardline',
+    config = function()
+      require('hardline').setup()
+    end
+  }
+
 
   use { 
     'nvim-telescope/telescope.nvim',
@@ -48,7 +56,7 @@ require('packer').startup(function()
         },
       })
     end,
-    requires = { 'nvim-lua/plenary.nvim' } 
+    requires = { 'nvim-lua/plenary.nvim', 'kyazdani42/nvim-web-devicons' } 
   }
 
   use {
@@ -291,5 +299,5 @@ vim.api.nvim_exec(
     autocmd!
     autocmd TextYankPost * silent! lua vim.highlight.on_yank()
   augroup end
-]],
-  false)
+]], false)
+
