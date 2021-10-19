@@ -35,7 +35,9 @@ require('packer').startup(function()
   use {
     'ojroques/nvim-hardline',
     config = function()
-      require('hardline').setup()
+      require('hardline').setup({
+        theme = 'jellybeans'
+      })
     end
   }
 
@@ -70,6 +72,13 @@ require('packer').startup(function()
       require('gitsigns').setup()
     end,
     requires = { 'nvim-lua/plenary.nvim' } 
+  }
+
+  use {
+    'numToStr/Comment.nvim',
+    config = function()
+        require('Comment').setup()
+    end
   }
 
   use {
@@ -227,7 +236,6 @@ require('packer').startup(function()
           end,
         },
       sources = {
-        { name = 'buffer' },
         { name = 'path' },
         { name = 'nvim_lsp' },
         { name = 'luasnip' },
@@ -236,7 +244,6 @@ require('packer').startup(function()
     end,
     requires = {
       'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-buffer',
       'hrsh7th/cmp-path',
       'saadparwaiz1/cmp_luasnip',
       'L3MON4D3/LuaSnip'
@@ -247,7 +254,6 @@ require('packer').startup(function()
 
   use 'wlangstroth/vim-racket'
   
-  use 'tpope/vim-commentary'
   use 'tpope/vim-repeat'
   use 'tpope/vim-surround'
 end)
