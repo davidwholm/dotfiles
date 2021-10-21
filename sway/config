@@ -10,6 +10,7 @@ set $down j
 set $up k
 set $right l
 set $term alacritty
+set $editor emacsclient --create-frame
 set $menu wofi --show drun | xargs swaymsg exec --
 
 ### Appearance
@@ -49,12 +50,16 @@ input "1739:52581:MSFT0001:01_06CB:CD65_Touchpad" {
 ### Key bindings
     # Start a terminal
     bindsym $mod+Return exec $term
+    bindsym $mod+Shift+Return exec $editor
 
     # Kill focused window
     bindsym $mod+Shift+q kill
 
     # Start your launcher
     bindsym $mod+d exec $menu
+
+    # Take screenshot
+    bindsym $mod+Print exec grim -g "$(slurp)" "~/Pictures/$(date +'%s_grim.png')"
 
     # Drag floating windows by holding down $mod and left mouse button.
     floating_modifier $mod normal
