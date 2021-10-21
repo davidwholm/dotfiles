@@ -18,16 +18,15 @@
   :init
   (gcmh-mode))
 
-(use-package doom-themes
+(use-package kaolin-themes
   :straight t
   :init
-  (load-theme 'doom-1337 t))
+  (load-theme 'kaolin-bubblegum t))
 
 (use-package doom-modeline
   :straight t
   :custom
-  (doom-modeline-height 30)
-  (doom-modeline-buffer-modification-icon nil)
+  (doom-modeline-height 35)
   :init
   (doom-modeline-mode))
 
@@ -51,6 +50,14 @@
   :init
   (vertico-mode))
 
+(use-package consult
+  :straight t)
+
+(use-package embark
+  :straight t
+  :bind
+  ("C-;" . embark-act))
+
 (use-package orderless
   :straight t
   :custom
@@ -69,12 +76,14 @@
 (use-package magit
   :straight t)
 
-(use-package evil
+(use-package org-superstar
   :straight t
   :custom
-  (evil-default-state 'emacs)
-  (evil-want-C-u-scroll t)
-  (evil-want-C-d-scroll t)
-  (evil-search-module 'isearch)
-  :init
-  (evil-mode))
+  (org-superstar-headline-bullets-list '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"))
+  :hook
+  (org-mode . org-superstar-mode))
+
+(use-package org
+  :straight t
+  :custom
+  (org-ellipsis "↝"))
