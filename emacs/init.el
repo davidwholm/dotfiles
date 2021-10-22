@@ -1,89 +1,112 @@
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
+(eval-and-compile
+  (customize-set-variable
+   'package-archives '(("org" . "https://orgmode.org/elpa/")
+                       ("melpa" . "https://melpa.org/packages/")
+                       ("gnu" . "https://elpa.gnu.org/packages/")))
+  (package-initialize)
+  (unless (package-installed-p 'leaf)
+    (package-refresh-contents)
+    (package-install 'leaf))
 
-(straight-use-package 'use-package)
+  (leaf leaf-keywords
+    :ensure t)
+    :config
+    (leaf-keywords-init))
 
-(use-package gcmh
-  :straight t
-  :init
-  (gcmh-mode))
-
-(use-package kaolin-themes
-  :straight t
-  :init
-  (load-theme 'kaolin-bubblegum t))
-
-(use-package doom-modeline
-  :straight t
+(leaf evil
+  :ensure t
+  :bind
+  (("<escape>" . keyboard-escape-quit)
+   ("C-M-u" . universal-argument))
   :custom
-  (doom-modeline-height 35)
+  `((evil-want-C-u-scroll . t)
+    (evil-want-C-d-scroll . t)
+    (evil-disable-insert-state-bindings . t)
+    (evil-search-module . 'isearch)
+    (evil-want-Y-yank-to-eol . t)
+    (evil-undo-system . 'undo-redo))
+  :init
+  (evil-mode))
+
+(leaf gcmh
+  :ensure t
+  :init (gcmh-mode))
+
+(leaf leuven-theme
+  :ensure t
+  :init
+  (load-theme 'leuven t))
+
+(leaf doom-modeline
+  :ensure t
+  :custom
+  `((doom-modeline-height . 35))
   :init
   (doom-modeline-mode))
 
-(use-package emacs
-  :straight nil
+(leaf emacs
   :custom
-  (inhibit-splash-screen t)
-  (truncate-lines t)
-  (indent-tabs-mode nil)
-  (cursor-in-non-selected-windows nil)
+  `((inhibit-splash-screen . t)
+    (truncate-lines . t)
+    (indent-tabs-mode . nil)
+    (cursor-in-non-selected-windows . nil))
   :init
   (menu-bar-mode 0)
   (scroll-bar-mode 0)
   (tool-bar-mode 0)
   (show-paren-mode)
   (blink-cursor-mode 0)
-  (add-to-list 'default-frame-alist '(font . "JetBrainsMono Nerd Font-13")))
+  (electric-pair-mode)
+  (push '(font . "JetBrainsMono Nerd Font-12") default-frame-alist ))
 
-(use-package vertico
-  :straight t
+(leaf vertico
+  :ensure t
   :init
   (vertico-mode))
 
-(use-package consult
-  :straight t)
+(leaf consult
+  :ensure t)
 
-(use-package embark
-  :straight t
+(leaf embark
+  :ensure t
   :bind
-  ("C-;" . embark-act))
+  (("C-;" . embark-act)))
 
-(use-package orderless
-  :straight t
+(leaf orderless
+  :ensure t
   :custom
-  (completion-styles '(orderless))
-  (completion-category-defaults nil)
-  (completion-category-overrides '((file (styles . (partial-completion))))))
+  `((completion-styles . '(orderless))
+    (completion-category-defaults . '())
+    (completion-category-overrides . '((file (styles . (partial-completion)))))))
 
-(use-package corfu
-  :straight t
+(leaf corfu
+  :ensure t
   :init
   (corfu-global-mode))
 
-(use-package racket-mode
-  :straight t)
+(leaf racket-mode
+  :ensure t)
 
-(use-package magit
-  :straight t)
+(leaf magit
+  :ensure t)
 
-(use-package org-superstar
-  :straight t
+(leaf org
+  :ensure t)
+
+(leaf org-roam
+  :ensure t
   :custom
-  (org-superstar-headline-bullets-list '("☯" "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"))
-  :hook
-  (org-mode . org-superstar-mode))
+  `((org-roam-v2-ack . t)
+    (org-roam-directory . ,(file-truename "~/org-roam")))
+  :init
+  (org-roam-db-autosync-mode))
 
-(use-package org
-  :straight t
-  :custom
-  (org-ellipsis "↝"))
+(leaf sly
+  :ensure t)
+
+(defun dh:zathura ()
+  (interactive)
+  (let ((filename (read-file-name "[PDF]: " (file-truename "~/Documents/"))))
+    (start-process-shell-command (concat filename "-zathura-proc")
+                                 nil
+                                 (concat "zathura" " " filename))))
