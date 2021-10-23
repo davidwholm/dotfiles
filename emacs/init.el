@@ -24,7 +24,15 @@
     (evil-disable-insert-state-bindings . t)
     (evil-search-module . 'isearch)
     (evil-want-Y-yank-to-eol . t)
-    (evil-undo-system . 'undo-redo))
+    (evil-undo-system . 'undo-redo)
+    (evil-normal-state-modes . '(prog-mode text-mode))
+    (evil-insert-state-modes . '())
+    (evil-visual-state-modes . '())
+    (evil-replace-state-modes . '())
+    (evil-operator-state-modes . '())
+    (evil-motion-state-modes . '())
+    (evil-emacs-state-modes . '())
+    (evil-default-state . 'emacs))
   :init
   (evil-mode))
 
@@ -99,6 +107,8 @@
   `((org-roam-v2-ack . t)
     (org-roam-directory . ,(file-truename "~/org-roam")))
   :init
+  (ignore-errors
+    (make-directory "~/org-roam"))
   (org-roam-db-autosync-mode))
 
 (leaf sly
