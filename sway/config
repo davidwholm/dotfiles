@@ -10,8 +10,11 @@ set $down j
 set $up k
 set $right l
 set $term alacritty
+set $wallpaper $HOME/Pictures/blue-sky.png
 set $editor emacsclient --create-frame
-set $menu wofi --show drun | xargs swaymsg exec --
+set $bemenu_options --fn='JetBrainsMono Nerd Font 11' --tf='#595959' --nb='#ffffff' --nf='#595959' --hb='#721045'  --hf='#f0f0f0' --bottom --prompt='CMD' 
+set $browser echo "chromium\nnyxt" | bemenu $bemenu_options | xargs swaymsg exec --
+set $menu bemenu-run $bemenu_options | xargs swaymsg exec --
 
 ### Appearance
 font pango:JetBrainsMono Nerd Font 9
@@ -22,7 +25,7 @@ default_floating_border none
 gaps inner 4
 
 ### Output configuration
-output * bg /home/david/Downloads/wallhaven-e766pl_1920x1080.png fill
+output * bg $wallpaper fill
 output eDP-1 resolution 1920x1080 position 0,0
 output HDMI-A-2 resolution 1920x1080 position 1920,0
 
@@ -51,6 +54,7 @@ input "1739:52581:MSFT0001:01_06CB:CD65_Touchpad" {
     # Start a terminal
     bindsym $mod+Return exec $term
     bindsym $mod+Shift+Return exec $editor
+    bindsym $mod+Control+Return exec $browser
 
     # Kill focused window
     bindsym $mod+Shift+q kill
@@ -59,7 +63,9 @@ input "1739:52581:MSFT0001:01_06CB:CD65_Touchpad" {
     bindsym $mod+d exec $menu
 
     # Take screenshot
-    bindsym $mod+Print exec grim -g "$(slurp)" "~/Pictures/$(date +'%s_grim.png')"
+    bindsym $mod+Print exec grim -g "$(slurp)" ~/Pictures/$(date +'%s_grim.png')
+    # Take screenshot and put it in clipboard
+    bindsym $mod+Shift+Print exec grim -g "$(slurp)" - | wl-copy
 
     # Drag floating windows by holding down $mod and left mouse button.
     floating_modifier $mod normal

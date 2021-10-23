@@ -8,3 +8,4 @@ done
 
 stow zsh
 stow starship -t ~/.config
+stow wallpapers -t ~/Pictures

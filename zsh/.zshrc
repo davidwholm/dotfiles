@@ -27,7 +27,7 @@ tmux_kill_session_fzf() {
 alias tas="tmux_attach_session_fzf"
 alias tks="tmux_kill_session_fzf"
 alias tls="tmux list-sessions"
-alias tns="tmux new-session"
+alias tns="tmux new-session -d -s"
 alias vi="nvim"
 alias vim="nvim"
 alias ls="exa"
