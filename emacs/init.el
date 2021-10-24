@@ -13,13 +13,6 @@
 
 (straight-use-package 'use-package)
 
-(use-package which-key
-  :straight t
-  :custom
-  (which-key-show-early-on-C-h t)
-  :init
-  (which-key-mode))
-
 (use-package evil
   :straight t
   :defer t
@@ -44,11 +37,18 @@
   (evil-emacs-state-modes '())
   (evil-default-state 'emacs)
   :init
-  (evil-mode))
+  (evil-mode)
+  :config
+  (evil-define-key 'normal org-mode-map #'org-cycle))
 
 (use-package gcmh
   :straight t
   :init (gcmh-mode))
+
+(use-package doom-themes
+  :straight t
+  :init
+  (load-theme 'doom-moonlight t))
 
 (use-package doom-modeline
   :straight t
@@ -71,11 +71,18 @@
   (show-paren-mode)
   (blink-cursor-mode 0)
   (electric-pair-mode)
-  (load-theme 'modus-operandi)
   (push '(font . "JetBrainsMono Nerd Font-12") default-frame-alist ))
 
+(use-package vertico
+  :straight t
+  :init
+  (vertico-mode))
+
 (use-package mct
+  :disabled t
   :straight (mct :type git :host gitlab :repo "protesilaos/mct")
+  :custom
+  (mct-hide-completion-mode-line t)
   :init
   (mct-mode))
 
@@ -129,12 +136,21 @@
     (make-directory "~/org-roam"))
   (org-roam-db-autosync-mode))
 
+(use-package org-roam-ui
+  :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :after org-roam
+  :custom
+  (org-roam-ui-sync-theme t)
+  (org-roam-ui-follow t)
+  (org-roam-ui-update-on-save t)
+  (org-roam-ui-open-on-start t))
+
 (use-package sly
   :straight t)
 
-(defun dh:zathura ()
-  (interactive)
-  (let ((filename (read-file-name "[PDF]: " (file-truename "~/Documents/"))))
-    (start-process-shell-command (concat filename "-zathura-proc")
-                                 nil
-                                 (concat "zathura" " " filename))))
+(defun dh:zathura (filename)
+  (interactive (list
+                (read-file-name "[PDF]: " (file-truename "~/Documents/"))))
+  (start-process-shell-command (concat filename "-zathura-proc")
+                               nil
+                               (concat "zathura" " " filename)))
