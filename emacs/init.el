@@ -1,3 +1,4 @@
+;;; Straight bootstrap
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -13,6 +14,12 @@
 
 (straight-use-package 'use-package)
 
+;;; Defvar
+(defvar dh:nextcloud-dir (concat (getenv "HOME") "/NextCloud"))
+(defvar dh:org-roam-dir (concat dh:nextcloud-dir "/org-roam"))
+(defvar dh:backup-dir (concat user-emacs-directory "backups"))
+
+;;; Packages & Configuration
 (use-package evil
   :straight t
   :defer t
@@ -39,7 +46,7 @@
   :init
   (evil-mode)
   :config
-  (evil-define-key 'normal org-mode-map #'org-cycle))
+  (evil-define-key 'normal org-mode-map (kbd "<tab>") #'org-cycle))
 
 (use-package gcmh
   :straight t
@@ -64,6 +71,9 @@
   (indent-tabs-mode nil)
   (cursor-in-non-selected-windows nil)
   (modus-themes-no-mixed-fonts t)
+  (make-backup-files t)
+  (backup-directory-alist
+   `(("." . ,dh:backup-dir)))
   :init
   (menu-bar-mode 0)
   (scroll-bar-mode 0)
@@ -71,20 +81,14 @@
   (show-paren-mode)
   (blink-cursor-mode 0)
   (electric-pair-mode)
-  (push '(font . "JetBrainsMono Nerd Font-12") default-frame-alist ))
+  (push '(font . "JetBrainsMono Nerd Font-12") default-frame-alist )
+  (unless (file-exists-p dh:backup-dir)
+    (make-directory dh:backup-dir)))
 
 (use-package vertico
   :straight t
   :init
   (vertico-mode))
-
-(use-package mct
-  :disabled t
-  :straight (mct :type git :host gitlab :repo "protesilaos/mct")
-  :custom
-  (mct-hide-completion-mode-line t)
-  :init
-  (mct-mode))
 
 (use-package consult
   :straight t)
@@ -128,12 +132,12 @@
   :straight t
   :custom
   (org-roam-v2-ack t)
-  (org-roam-directory (file-truename "~/org-roam"))
+  (org-roam-directory dh:org-roam-dir)
   :bind
   ("C-c n f" . org-roam-node-find)
   :init
-  (ignore-errors
-    (make-directory "~/org-roam"))
+  (unless (file-exists-p dh:org-roam-dir)
+    (make-directory dh:org-roam-dir))
   (org-roam-db-autosync-mode))
 
 (use-package org-roam-ui
@@ -147,6 +151,8 @@
 
 (use-package sly
   :straight t)
+
+;;; Functions
 
 (defun dh:zathura (filename)
   (interactive (list
