@@ -1,4 +1,3 @@
-;;; Straight bootstrap
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -14,134 +13,43 @@
 
 (straight-use-package 'use-package)
 
-;;; Defvar
-(defvar dh:nextcloud-dir (concat (getenv "HOME") "/NextCloud"))
-(defvar dh:org-roam-dir (concat dh:nextcloud-dir "/org-roam"))
-(defvar dh:backup-dir (concat user-emacs-directory "backups"))
-
-;;; Packages & Configuration
-(use-package evil
-  :straight t
-  :defer t
-  :bind
-  ("<escape>" . keyboard-escape-quit)
-  ("C-M-u" . universal-argument)
-  :custom
-  (evil-want-C-u-scroll t)
-  (evil-want-C-d-scroll t)
-  (evil-disable-insert-state-bindings t)
-  (evil-search-module 'isearch)
-  (evil-want-Y-yank-to-eol t)
-  (evil-undo-system 'undo-redo)
-  (evil-normal-state-modes '(prog-mode
-                             text-mode
-                             conf-mode))
-  (evil-insert-state-modes '())
-  (evil-visual-state-modes '())
-  (evil-replace-state-modes '())
-  (evil-operator-state-modes '())
-  (evil-motion-state-modes '())
-  (evil-emacs-state-modes '())
-  (evil-default-state 'emacs)
-  :init
-  (evil-mode)
-  :config
-  (evil-define-key 'normal org-mode-map (kbd "<tab>") #'org-cycle))
-
 (use-package gcmh
   :straight t
-  :init (gcmh-mode))
+  :init
+  (gcmh-mode))
 
-(use-package doom-themes
+(use-package minions
   :straight t
   :init
-  (load-theme 'doom-moonlight t))
-
-(use-package doom-modeline
-  :straight t
-  :custom
-  (doom-modeline-height 35)
-  :init
-  (doom-modeline-mode))
-
-(use-package emacs
-  :custom
-  (inhibit-splash-screen t)
-  (truncate-lines t)
-  (indent-tabs-mode nil)
-  (cursor-in-non-selected-windows nil)
-  (modus-themes-no-mixed-fonts t)
-  (make-backup-files t)
-  (backup-directory-alist
-   `(("." . ,dh:backup-dir)))
-  :init
-  (menu-bar-mode 0)
-  (scroll-bar-mode 0)
-  (tool-bar-mode 0)
-  (show-paren-mode)
-  (blink-cursor-mode 0)
-  (electric-pair-mode)
-  (push '(font . "JetBrainsMono Nerd Font-12") default-frame-alist )
-  (unless (file-exists-p dh:backup-dir)
-    (make-directory dh:backup-dir)))
-
-(use-package vertico
-  :straight t
-  :init
-  (vertico-mode))
-
-(use-package consult
-  :straight t)
-
-(use-package embark
-  :straight t
-  :bind
-  ("C-;" . embark-act))
-
-(use-package orderless
-  :straight t
-  :custom
-  (completion-styles '(orderless))
-  (completion-category-defaults '())
-  (completion-category-overrides '((file (styles . (partial-completion))))))
-
-(use-package corfu
-  :straight t
-  :init
-  (corfu-global-mode))
-
-(use-package sudo-edit
-  :straight t
-  :after embark
-  :bind
-  (:map embark-file-map
-        ("s" . sudo-edit)))
-
-(use-package racket-mode
-  :straight t)
-
-(use-package magit
-  :straight t)
+  (minions-mode))
 
 (use-package org
-  :straight t
-  :hook
-  (org-mode . auto-fill-mode))
+  :straight t)
 
 (use-package org-roam
   :straight t
   :custom
-  (org-roam-v2-ack t)
-  (org-roam-directory dh:org-roam-dir)
-  :bind
-  ("C-c n f" . org-roam-node-find)
+  (org-roam-directory (file-truename "~/Documents/org-roam"))
   :init
-  (unless (file-exists-p dh:org-roam-dir)
-    (make-directory dh:org-roam-dir))
-  (org-roam-db-autosync-mode))
+  (setq org-roam-v2-ack t)
+  (org-roam-db-autosync-mode)
+  :config
+  (defun org-roam-node-insert-immediate (arg &rest args)
+    (interactive "P")
+    (let ((args (push arg args))
+          (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+                                                    '(:immediate-finish t)))))
+      (apply #'org-roam-node-insert args)))
+  :bind
+  (:map global-map
+        ("C-c n f" . org-roam-node-find))
+  (:map org-mode-map
+        ("C-c n i" . org-roam-node-insert)
+        ("C-c n I" . org-roam-node-insert-immediate)))
 
 (use-package org-roam-ui
-  :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :straight
+  (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
   :after org-roam
   :custom
   (org-roam-ui-sync-theme t)
@@ -149,14 +57,44 @@
   (org-roam-ui-update-on-save t)
   (org-roam-ui-open-on-start t))
 
-(use-package sly
-  :straight t)
 
-;;; Functions
+(use-package emacs
+  :custom
+  (ring-bell-function 'ignore)
+  (indent-tabs-mode nil)
+  (truncate-lines t)
+  (inhibit-startup-screen t)
+  :init
+  (menu-bar-mode 0)
+  (scroll-bar-mode 0)
+  (tool-bar-mode 0)
+  (set-frame-font "FantasqueSansMono Nerd Font-13" t t))
 
-(defun dh:zathura (filename)
-  (interactive (list
-                (read-file-name "[PDF]: " (file-truename "~/Documents/"))))
-  (start-process-shell-command (concat filename "-zathura-proc")
-                               nil
-                               (concat "zathura" " " filename)))
+(use-package modus-themes
+  :custom
+  (modus-themes-mode-line '(accented borderless))
+  (modus-themes-paren-match '(underline))
+  (modus-themes-intense-paren-match t)
+  (modus-themes-bold-constructs t)
+  (modus-themes-links '(faint neutral-underline))
+  (modus-themes-hl-line '(intense))
+  (modus-themes-completions 'opinionated)
+  (modus-themes-prompts '(bold background))
+  (modus-themes-org-blocks 'grayscale)
+  (modus-themes-tabs-accented t)
+  (modus-themes-variable-pitch-ui nil)
+  (modus-themes-diffs 'desaturated)
+  (modus-themes-syntax nil)
+  (modus-themes-scale-headings t)
+  (modus-themes-scale-1 1.1)
+  (modus-themes-scale-2 1.15)
+  (modus-themes-scale-3 1.20)
+  (modus-themes-scale-4 1.25)
+  (modus-themes-scale-title 1.30)
+  (modus-themes-section-headings nil)
+  (modus-themes-region '(no-extend accented))
+  (modus-themes-variable-pitch-headings nil)
+  (modus-themes-headings '((t . (background overline rainbow))))
+  (modus-themes-fringes 'subtle)
+  :init
+  (load-theme 'modus-operandi t))

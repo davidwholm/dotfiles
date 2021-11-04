@@ -1,11 +1,10 @@
 #!/usr/bin/env sh
 
-for config in alacritty nvim sway tmux nyxt
+for config in kitty nvim emacs
 do
     mkdir -p ~/.config/"$config"
     stow "$config" -t ~/.config/"$config"
 done
 
 stow zsh
-stow starship -t ~/.config
 stow wallpapers -t ~/Pictures
