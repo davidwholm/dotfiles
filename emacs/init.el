@@ -13,18 +13,83 @@
 
 (straight-use-package 'use-package)
 
+(use-package recentf
+  :custom
+  (recentf-max-saved-items 200)
+  :init
+  (recentf-mode))
+
+(use-package mct
+  :straight
+  (:host gitlab :repo "protesilaos/mct")
+  :init
+  (mct-mode))
+
+(use-package orderless
+  :straight t
+  :custom
+  (completion-styles '(orderless))
+  (completion-category-defaults '())
+  (completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package marginalia
+  :straight t
+  :init
+  (marginalia-mode))
+
+(use-package embark
+  :straight t
+  :bind
+  ("C-;" . embark-act))
+
+(use-package minibuffer
+  :custom
+  (enable-recursive-minibuffers t))
+
+(use-package consult
+  :straight t
+  :bind
+  (:map global-map
+        ("M-g g" . consult-goto-line)
+        ("M-g f" . consult-flymake)
+        ("M-g j" . consult-compile-error)
+
+        ("M-s M-j" . consult-outline)
+        ("M-s M-l" . consult-locate)
+        ("M-s M-o" . consult-multi-occur)
+
+        ("M-s f" . consult-fd)
+        ("M-s g" . consult-ripgrep)
+        ("M-s G" . consult-git-grep)
+        ("M-s r" . consult-recent-file)
+        ("M-s i" . consult-imenu)
+        ("M-s l" . consult-focus-lines))
+    (:map ctl-x-map
+        ("b" . consult-buffer)
+        ("M-:" . consult-complex-command))
+  (:map ctl-x-r-map
+        ("b" . consult-bookmark)
+        ("x" . consult-register))
+  (:map minibuffer-local-map
+        ("C-r" . consult-history)))
+
 (use-package gcmh
   :straight t
   :init
   (gcmh-mode))
 
+(use-package magit
+  :straight t)
+  
 (use-package minions
   :straight t
   :init
   (minions-mode))
 
 (use-package org
-  :straight t)
+  :straight t
+  :hook
+  (org-mode . auto-fill-mode))
 
 (use-package org-roam
   :straight t
@@ -44,8 +109,9 @@
   (:map global-map
         ("C-c n f" . org-roam-node-find))
   (:map org-mode-map
-        ("C-c n i" . org-roam-node-insert)
-        ("C-c n I" . org-roam-node-insert-immediate)))
+        ("C-c n l" . org-roam-buffer-toggle)
+        ("C-c n I" . org-roam-node-insert)
+        ("C-c n i" . org-roam-node-insert-immediate)))
 
 (use-package org-roam-ui
   :straight
@@ -57,18 +123,39 @@
   (org-roam-ui-update-on-save t)
   (org-roam-ui-open-on-start t))
 
-
 (use-package emacs
   :custom
+  (user-full-name "David Holmqvist")
+  (user-mail-address "david.holmqvist@mailbox.org")
+  (backup-directory-alist
+   `(("." . ,(concat user-emacs-directory "backup"))))
+  (backup-by-copying t)
+  (version-control t)
+  (delete-old-versions t)
+  (kept-new-versions 10)
+  (kept-old-versions 5)
   (ring-bell-function 'ignore)
   (indent-tabs-mode nil)
   (truncate-lines t)
   (inhibit-startup-screen t)
+  (echo-keystrokes 0.1)
+  (indicate-buffer-boundaries t)
+  (indicate-empty-lines nil)
+  (cursor-in-non-selected-windows nil)
+  (highlight-nonselected-windows nil)
+  (bidi-display-reordering 'left-to-right)
+  (scroll-conservatively 101)
   :init
   (menu-bar-mode 0)
   (scroll-bar-mode 0)
   (tool-bar-mode 0)
-  (set-frame-font "FantasqueSansMono Nerd Font-13" t t))
+  (blink-cursor-mode 0))
+
+(use-package cus-face
+  :config
+  (custom-set-faces
+   '(variable-pitch ((t (:family "FantasqueSansMono Nerd Font" :height 130))))
+   '(default ((t (:family "FantasqueSansMono Nerd Font" :height 120))))))
 
 (use-package modus-themes
   :custom
