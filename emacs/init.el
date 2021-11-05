@@ -19,11 +19,31 @@
   :init
   (recentf-mode))
 
-(use-package mct
-  :straight
-  (:host gitlab :repo "protesilaos/mct")
+(use-package vertico
+  :straight t
+  :custom
+  (vertico-resize t)
   :init
-  (mct-mode))
+  (vertico-mode))
+
+(use-package tab-bar
+  :custom
+  (tab-bar-show nil)
+  (mode-line-format
+   (append mode-line-format
+           (list
+            '(:eval
+              (let* ((current-tab (-find (lambda (tab)
+                                           (equal (car tab)
+                                                  'current-tab))
+                                         (tab-bar-tabs)))
+                     (current-tab-name (or
+                                        (and current-tab
+                                             (cdadr current-tab))
+                                        "")))
+                (format "[%s]" current-tab-name))))))
+  :init
+  (tab-bar-mode))
 
 (use-package orderless
   :straight t
@@ -44,7 +64,10 @@
 
 (use-package minibuffer
   :custom
-  (enable-recursive-minibuffers t))
+  (enable-recursive-minibuffers t)
+  (read-file-name-completion-ignore-case t)
+  (read-buffer-completion-ignore-case t)
+  (completion-ignore-case t))
 
 (use-package consult
   :straight t
@@ -64,7 +87,7 @@
         ("M-s r" . consult-recent-file)
         ("M-s i" . consult-imenu)
         ("M-s l" . consult-focus-lines))
-    (:map ctl-x-map
+  (:map ctl-x-map
         ("b" . consult-buffer)
         ("M-:" . consult-complex-command))
   (:map ctl-x-r-map
