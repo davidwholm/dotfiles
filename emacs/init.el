@@ -69,6 +69,14 @@
   (read-buffer-completion-ignore-case t)
   (completion-ignore-case t))
 
+(use-package eshell
+  :custom
+  (eshell-banner-message '(format "%s %s\n"
+                                  (propertize (format " %s " (string-trim (buffer-name)))
+                                              'face 'mode-line-highlight)
+                                  (propertize (current-time-string)
+                                              'face 'font-lock-keyword-face))))
+
 (use-package consult
   :straight t
   :bind
@@ -176,9 +184,14 @@
 
 (use-package cus-face
   :config
-  (custom-set-faces
-   '(variable-pitch ((t (:family "FantasqueSansMono Nerd Font" :height 130))))
-   '(default ((t (:family "FantasqueSansMono Nerd Font" :height 120))))))
+  (cl-flet ((generate-face (font height)
+                           `((t (:family ,font :height ,height)))))
+    (let ((font "FantasqueSansMono Nerd Font")
+          (height 120))
+      (custom-set-faces
+       `(default ,(generate-face font height))
+       `(fixed-pitch ,(generate-face font height))
+       `(variable-pitch ,(generate-face font (+ height 10)))))))
 
 (use-package modus-themes
   :custom
@@ -205,6 +218,14 @@
   (modus-themes-region '(no-extend accented))
   (modus-themes-variable-pitch-headings nil)
   (modus-themes-headings '((t . (background overline rainbow))))
-  (modus-themes-fringes 'subtle)
+  (modus-themes-fringes 'subtle))
+
+(use-package circadian
+  :straight t
+  :custom
+  (calendar-latitude 56.031200)
+  (calendar-longitude 14.154950)
+  (circadian-themes '((:sunrise . modus-operandi)
+                      (:sunset . modus-vivendi)))
   :init
-  (load-theme 'modus-operandi t))
+  (circadian-setup))
