@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-for config in kitty nvim emacs
+for config in wezterm kak nvim emacs
 do
     mkdir -p ~/.config/"$config"
     stow "$config" -t ~/.config/"$config"

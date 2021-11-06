@@ -1,10 +1,10 @@
-alias vi="nvim"
-alias vim="nvim"
+alias k="kcr edit"
 alias ls="exa"
 alias find="fd"
 alias grep="rg"
 alias cat="bat"
 
-export EDITOR="nvim"
+export EDITOR="kcr edit"
+export PATH="$HOME/.local/bin":"$PATH"
 
-PROMPT="%~ $ "
+PROMPT="%B%F{blue}%~ %F{magenta}$ %f%b"
