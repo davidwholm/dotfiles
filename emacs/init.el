@@ -1,3 +1,7 @@
+;;; init.el --- Emacs configuration file
+;;; Commentary:
+;;; Code:
+
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -21,29 +25,33 @@
 
 (use-package vertico
   :straight t
-  :custom
-  (vertico-resize t)
   :init
   (vertico-mode))
 
-(use-package tab-bar
-  :custom
-  (tab-bar-show nil)
-  (mode-line-format
-   (append mode-line-format
-           (list
-            '(:eval
-              (let* ((current-tab (-find (lambda (tab)
-                                           (equal (car tab)
-                                                  'current-tab))
-                                         (tab-bar-tabs)))
-                     (current-tab-name (or
-                                        (and current-tab
-                                             (cdadr current-tab))
-                                        "")))
-                (format "[%s]" current-tab-name))))))
+(use-package tabspaces
+  :load-path "lisp"
+  :bind
+  (:map ctl-x-map
+        ("t C-l" . tabspaces-show-tabspaces))
+  :config
+  (advice-add #'tab-next :after #'tabspaces-show-tabspaces)
+  (advice-add #'tab-previous :after #'tabspaces-show-tabspaces)
   :init
-  (tab-bar-mode))
+  (require 'tabspaces)
+  (tabspaces-mode))
+
+(use-package flymake
+  :straight t
+  :custom
+  (flymake-fringe-indicator-position nil)
+  :hook
+  (prog-mode . flymake-mode))
+
+(use-package eglot
+  :straight t
+  :custom
+  (eglot-stay-out-of '(company flymake eldoc))
+  (eglot-autoshutdown t))
 
 (use-package orderless
   :straight t
@@ -130,7 +138,7 @@
   (setq org-roam-v2-ack t)
   (org-roam-db-autosync-mode)
   :config
-  (defun org-roam-node-insert-immediate (arg &rest args)
+  (defun +org-roam-node-insert-immediate (arg &rest args)
     (interactive "P")
     (let ((args (push arg args))
           (org-roam-capture-templates (list (append (car org-roam-capture-templates)
@@ -142,7 +150,7 @@
   (:map org-mode-map
         ("C-c n l" . org-roam-buffer-toggle)
         ("C-c n I" . org-roam-node-insert)
-        ("C-c n i" . org-roam-node-insert-immediate)))
+        ("C-c n i" . +org-roam-node-insert-immediate)))
 
 (use-package org-roam-ui
   :straight
@@ -187,7 +195,7 @@
   (cl-flet ((generate-face (font height)
                            `((t (:family ,font :height ,height)))))
     (let ((font "FantasqueSansMono Nerd Font")
-          (height 120))
+          (height 130))
       (custom-set-faces
        `(default ,(generate-face font height))
        `(fixed-pitch ,(generate-face font height))
@@ -229,3 +237,5 @@
                       (:sunset . modus-vivendi)))
   :init
   (circadian-setup))
+
+;;; init.el ends here

@@ -12,7 +12,7 @@ end
 local use = require('packer').use
 require('packer').startup(function()
   use({'wbthomason/packer.nvim'})
-  use({'ishan9299/modus-theme-vim'})
+  use({'dracula/vim'})
   use({
     'nvim-telescope/telescope.nvim',
     requires = {
@@ -41,9 +41,7 @@ end)
 -- Visuals {{{
 vim.opt.termguicolors = true
 vim.opt.number = true
-vim.opt.cursorline = true
-vim.g.modus_cursorline_intense = true
-vim.cmd([[colorscheme modus-operandi]])
+vim.cmd([[colorscheme dracula]])
 -- }}}
 
 -- Telescope {{{

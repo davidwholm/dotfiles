@@ -1,9 +1,7 @@
-# kcr
 evaluate-commands %sh{
-    kcr init kakoune
+  kcr init kakoune
 }
 
-# plugins
 evaluate-commands %sh{
     plugins="$kak_config/plugins"
     mkdir -p "$plugins"
@@ -11,22 +9,19 @@ evaluate-commands %sh{
         git clone -q https://github.com/andreyorst/plug.kak.git "$plugins/plug.kak"
     printf "%s\n" "source '$plugins/plug.kak/rc/plug.kak'"
 }
+
 plug "andreyorst/plug.kak" noload
-
-plug "raiguard/one.kak" theme config %{
-    colorscheme one-dark
+plug "dracula/kakoune" theme config %{
+    colorscheme dracula
 }
 
-set-option global scrolloff 4,4
-set-option global ui_options ncurses_set_title=false
-
-set-option global tabstop 4
-set-option global indentwidth 4
-
-hook global WinSetOption filetype=(c|cpp) %{
-    set-option buffer formatcmd 'clang-format'
+define-command lf -params .. -file-completion -docstring "Open files with lf" %{
+    connect terminal lf %arg{@}
 }
 
-hook global WinSetOption filetype=gas %{
-    set-option window comment_line '#'
+define-command zk-find -params 0 %{
+    connect terminal
 }
+
+add-highlighter global/number number-lines -relative -hlcursor
+add-highlighter global/matching show-matching
