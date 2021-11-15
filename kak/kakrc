@@ -11,17 +11,72 @@ evaluate-commands %sh{
 }
 
 plug "andreyorst/plug.kak" noload
-plug "dracula/kakoune" theme config %{
-    colorscheme dracula
+
+define-command nnn -params .. -file-completion -docstring "Open files with nnn" %{
+    connect terminal nnn -c %arg{@}
 }
 
-define-command lf -params .. -file-completion -docstring "Open files with lf" %{
-    connect terminal lf %arg{@}
+define-command zettel-insert -docstring "Find or create new zettel and insert link to it" %{
+    connect terminal sh -c %{
+        zettel=$(zettel-find "$HOME/Nextcloud/zettelkasten")
+        ! [ -z "$zettel" ] && kcr send execute-keys "<esc>i[]($(basename $zettel))<esc><a-f>];i"
+    }
 }
 
-define-command zk-find -params 0 %{
-    connect terminal
+define-command zettel-find -docstring "Find or create new zettel and open" %{
+    connect terminal sh -c %{
+        zettel=$(zettel-find "$HOME/Nextcloud/zettelkasten")
+        ! [ -z "$zettel" ] && kcr send edit "$zettel"
+    }
 }
+
+define-command zettel-visit-link -docstring "Visit the link under the cursor" %{
+    execute-keys %sh{
+        printf "<esc>"
+        case "$kak_selection" in
+            ")")
+                printf "<a-i>("
+                ;;
+            "[")
+                printf "f(<a-i>("
+                ;;
+            *)
+                printf "f)<a-i>("
+                ;;
+        esac
+    }
+    edit %sh{
+        printf "%s/%s" "$HOME/Nextcloud/zettelkasten" "$kak_selection"
+    }
+}
+
+define-command zettel-backlinks -docstring "Get backlinks for current document" %{
+    connect terminal sh -c %{
+        stripped_file=$(basename "$kak_buffile")
+        backlink=$(zettel-backlinks "$stripped_file" "$HOME/Nextcloud/zettelkasten")
+        ! [ -z "$backlink" ] && kcr send edit "$backlink"
+    }
+}
+
+declare-user-mode zettel
+map global zettel -docstring "Find and open zettel." f ": zettel-find<ret>"
+map global zettel -docstring "Find and insert link to zettel." i ": zettel-insert<ret>"
+map global zettel -docstring "Find and visit backlink." b ": zettel-backlinks<ret>"
+map global zettel -docstring "Visit link under cursor." v ": zettel-visit-link<ret>"
+map global user -docstring "Manage zettelkasten" z ": enter-user-mode zettel<ret>"
 
 add-highlighter global/number number-lines -relative -hlcursor
 add-highlighter global/matching show-matching
+
+map global normal <c-t> ": connect terminal<ret>"
+
+hook global BufCreate .* %{
+    try %{
+        editorconfig-load
+    }
+}
+
+set-option global indentwidth 4
+set-option global grepcmd "rg --column"
+
+colorscheme default

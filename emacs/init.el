@@ -17,6 +17,43 @@
 
 (straight-use-package 'use-package)
 
+(use-package yasnippet
+  :straight t
+  :custom
+  (yas-snippet-dirs (list
+                     (file-truename (concat user-emacs-directory "snippets"))))
+  :hook
+  (prog-mode . yas-minor-mode))
+
+(use-package cc-mode
+  :custom
+  (c-basic-offset 4))
+
+(use-package tree-sitter-langs
+  :straight t)
+
+(use-package tree-sitter
+  :straight t
+  :hook
+  ((prog-mode . tree-sitter-mode)
+   (tree-sitter-after-on . tree-sitter-hl-mode))
+  :config
+  (defun +tree-sitter-handle-fail-gracefully (orig-fn &rest args)
+    (condition-case e
+        (apply orig-fn args)
+      (error
+       (unless (string-match-p (concat "^Cannot find shared library\\|"
+                                       "^No language registered\\|"
+                                       "cannot open shared object file")
+                               (error-message-string e))
+         (signal (car e) (cadr e))))))
+  (advice-add #'tree-sitter-mode :around #'+tree-sitter-handle-fail-gracefully)
+  :init
+  (require 'tree-sitter-langs))
+
+(use-package restclient
+  :straight t)
+
 (use-package recentf
   :custom
   (recentf-max-saved-items 200)
@@ -33,9 +70,6 @@
   :bind
   (:map ctl-x-map
         ("t C-l" . tabspaces-show-tabspaces))
-  :config
-  (advice-add #'tab-next :after #'tabspaces-show-tabspaces)
-  (advice-add #'tab-previous :after #'tabspaces-show-tabspaces)
   :init
   (require 'tabspaces)
   (tabspaces-mode))
@@ -43,6 +77,7 @@
 (use-package flymake
   :straight t
   :custom
+  (flymake-no-changes-timeout 3)
   (flymake-fringe-indicator-position nil)
   :hook
   (prog-mode . flymake-mode))
@@ -78,12 +113,40 @@
   (completion-ignore-case t))
 
 (use-package eshell
+  :init
+  (require 'em-alias)
+  (mapcar (lambda (alias-spec)
+            (apply #'eshell/alias alias-spec))
+          '(("ff" "find-file $1")
+            ("ffow" "find-file-other-window $1")
+            ("stb" "switch-to-buffer $1")
+            ("stbow" "switch-to-buffer-other-window $1")))
+  :bind
+  (:map eshell-mode-map
+        ("C-c <tab>" . lisp-indent-line))
   :custom
   (eshell-banner-message '(format "%s %s\n"
                                   (propertize (format " %s " (string-trim (buffer-name)))
                                               'face 'mode-line-highlight)
                                   (propertize (current-time-string)
                                               'face 'font-lock-keyword-face))))
+
+(use-package eshell-syntax-highlighting
+  :straight t
+  :init
+  (eshell-syntax-highlighting-global-mode))
+
+(use-package goggles
+  :straight t
+  :hook
+  ((prog-mode text-mode) . goggles-mode)
+  :custom
+  (goggles-pulse t))
+
+(use-package corfu
+  :straight t
+  :init
+  (corfu-global-mode))
 
 (use-package consult
   :straight t
@@ -194,48 +257,21 @@
   :config
   (cl-flet ((generate-face (font height)
                            `((t (:family ,font :height ,height)))))
-    (let ((font "FantasqueSansMono Nerd Font")
-          (height 130))
+    (let ((font "Iosevka Fixed")
+          (height 135))
       (custom-set-faces
        `(default ,(generate-face font height))
        `(fixed-pitch ,(generate-face font height))
        `(variable-pitch ,(generate-face font (+ height 10)))))))
 
-(use-package modus-themes
-  :custom
-  (modus-themes-mode-line '(accented borderless))
-  (modus-themes-paren-match '(underline))
-  (modus-themes-intense-paren-match t)
-  (modus-themes-bold-constructs t)
-  (modus-themes-links '(faint neutral-underline))
-  (modus-themes-hl-line '(intense))
-  (modus-themes-completions 'opinionated)
-  (modus-themes-prompts '(bold background))
-  (modus-themes-org-blocks 'grayscale)
-  (modus-themes-tabs-accented t)
-  (modus-themes-variable-pitch-ui nil)
-  (modus-themes-diffs 'desaturated)
-  (modus-themes-syntax nil)
-  (modus-themes-scale-headings t)
-  (modus-themes-scale-1 1.1)
-  (modus-themes-scale-2 1.15)
-  (modus-themes-scale-3 1.20)
-  (modus-themes-scale-4 1.25)
-  (modus-themes-scale-title 1.30)
-  (modus-themes-section-headings nil)
-  (modus-themes-region '(no-extend accented))
-  (modus-themes-variable-pitch-headings nil)
-  (modus-themes-headings '((t . (background overline rainbow))))
-  (modus-themes-fringes 'subtle))
-
-(use-package circadian
+(use-package doom-themes
   :straight t
-  :custom
-  (calendar-latitude 56.031200)
-  (calendar-longitude 14.154950)
-  (circadian-themes '((:sunrise . modus-operandi)
-                      (:sunset . modus-vivendi)))
   :init
-  (circadian-setup))
+  (load-theme 'doom-vibrant t))
+
+(use-package mood-line
+  :straight t
+  :init
+  (mood-line-mode))
 
 ;;; init.el ends here

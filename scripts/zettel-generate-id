@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Usage:
+#
+# zettel-generate-id [title]
+
+if [ "$#" -lt 1 ]
+then
+    echo "usage: zettel-generate-id [title]"
+    exit 1
+fi
+
+title="$@"
+
+transformed_title=$(echo "$title" | tr " " "-" | tr "[A-Z]" "[a-z]")
+date=$(date +"%Y%m%d%H%M%S")
+echo "$date-$transformed_title"

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Usage:
+#
+# zettel-backlinks [file] [directory]
+
+if ! [ "$#" -eq 2 ]
+then
+    echo "usage: zettel-backlinks [file] [directory]"
+    exit 1
+fi
+
+file="$1"
+directory="$2"
+
+backlink=$(
+    rg --files-with-matches "\($(basename $file)\)" "$directory" |
+    basename --multiple |
+    fzf --layout=reverse --preview-window=down:50% -i --preview="cat $directory/{}"
+)
+
+! [ -z "$backlink" ] && echo "$directory/$backlink"

@@ -4,7 +4,7 @@ if [ -n "$DESKTOP_SESSION" ];then
 fi
 
 typeset -U PATH path
-path=("$HOME/.local/bin" "$path[@]")
+path=("$HOME/.local/bin" "$HOME/.luarocks/bin" "$path[@]")
 export PATH
 
 export EDITOR="kcr edit"

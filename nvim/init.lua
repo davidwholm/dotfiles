@@ -12,7 +12,7 @@ end
 local use = require('packer').use
 require('packer').startup(function()
   use({'wbthomason/packer.nvim'})
-  use({'dracula/vim'})
+  use({'ChristianChiarulli/nvcode-color-schemes.vim'})
   use({
     'nvim-telescope/telescope.nvim',
     requires = {
@@ -26,6 +26,7 @@ require('packer').startup(function()
     run = ':TSUpdate'
   })
   use({'neovim/nvim-lspconfig'})
+  use ({'kristijanhusak/orgmode.nvim'})
   use({
     'hrsh7th/nvim-cmp',
      requires = {
@@ -41,27 +42,49 @@ end)
 -- Visuals {{{
 vim.opt.termguicolors = true
 vim.opt.number = true
-vim.cmd([[colorscheme dracula]])
+vim.opt.guifont = "JetBrainsMono Nerd Font:h18"
+vim.cmd([[colorscheme nvcode]])
+-- }}}
+
+-- Org-mode {{{
+local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+parser_config.org = {
+  install_info = {
+    url = 'https://github.com/milisims/tree-sitter-org',
+    revision = 'main',
+    files = {'src/parser.c', 'src/scanner.cc'},
+  },
+  filetype = 'org',
+}
+require('orgmode').setup({
+  org_agenda_files = { '~/Nextcloud/org' },
+  org_default_notes_file = '~/Nextcloud/org/refile.org'
+})
+vim.api.nvim_set_keymap(
+  'n',
+  '<leader>os',
+  [[<cmd>lua require('telescope.builtin').live_grep({search_dirs={'$HOME/Nextcloud/org'}})<cr>]],
+  { noremap = true, silent = true }
+)
+
+vim.api.nvim_set_keymap(
+  'n',
+  '<leader>of',
+  [[<cmd>lua require('telescope.builtin').find_files({search_dirs={'$HOME/Nextcloud/org'}})<cr>]],
+  { noremap = true, silent = true }
+)
 -- }}}
 
 -- Telescope {{{
-require('telescope').setup({
-  defaults = {
-    mappings = {
-      i = {
-        ['<esc>'] = require('telescope.actions').close,
-      },
-    },
-  },
-})
+require('telescope').setup()
 -- }}}
 
 -- Treesitter {{{
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = "maintained",
+  ensure_installed = "maintained", "org",
   highlight = {
     enable = true,
-    additional_vim_regex_highlighting = false,
+    additional_vim_regex_highlighting = {'org'}
   },
   indent = {
     enable = true
@@ -133,6 +156,7 @@ cmp.setup({
     { name = 'path' },
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
+    { name = 'orgmode' }
   },
 })
 -- }}}

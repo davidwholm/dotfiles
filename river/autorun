@@ -1,0 +1,4 @@
+foot --server
+waybar
+mako
+rivertile -main-ratio 0.5 -view-padding 8 -outer-padding 8

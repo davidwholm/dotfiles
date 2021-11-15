@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Usage:
+#
+# zettel-find [directory]
+
+if ! [ "$#" -eq 1 ]
+then
+    echo "usage: zettel-find [directory]"
+    exit 1
+fi
+
+directory="$1"
+
+zettel=$(
+    ls "$directory" |
+    fzf --print-query --layout=reverse --preview-window=down:50% -i --preview="cat $directory/{}"
+)
+
+if [ "$?" -eq 1 ]
+then
+    zettel_file="$(zettel-generate-id $zettel).md"
+    echo "# $zettel" > "$directory/$zettel_file"
+    echo "$directory/$zettel_file"
+else
+    zettel_file=$(echo "$zettel" | tail -n 1)
+    ! [ -z "$zettel" ] && echo "$directory/$zettel_file"
+fi
