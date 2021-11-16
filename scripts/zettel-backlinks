@@ -10,13 +10,13 @@ then
     exit 1
 fi
 
-file="$1"
+file=$(echo "$1" | sed "s/.*\///")
 directory="$2"
 
 backlink=$(
     rg --files-with-matches "\($(basename $file)\)" "$directory" |
-    basename --multiple |
-    fzf --layout=reverse --preview-window=down:50% -i --preview="cat $directory/{}"
+    sed "s/.*\///" |
+    fzf --layout=reverse --preview-window=down:50% -i --preview="bat --color=always --style=plain $directory/{}"
 )
 
 ! [ -z "$backlink" ] && echo "$directory/$backlink"

@@ -1,7 +1,9 @@
+# kakoune.cr
 evaluate-commands %sh{
   kcr init kakoune
 }
 
+# plug.kak
 evaluate-commands %sh{
     plugins="$kak_config/plugins"
     mkdir -p "$plugins"
@@ -12,20 +14,27 @@ evaluate-commands %sh{
 
 plug "andreyorst/plug.kak" noload
 
+# Commands
+# nnn - file manager
 define-command nnn -params .. -file-completion -docstring "Open files with nnn" %{
-    connect terminal nnn -c %arg{@}
+    connect terminal nnn -e %arg{@}
 }
 
+# zettelkasten
+declare-option str zettel_directory "/home/david/Nextcloud/zettelkasten"
 define-command zettel-insert -docstring "Find or create new zettel and insert link to it" %{
     connect terminal sh -c %{
-        zettel=$(zettel-find "$HOME/Nextcloud/zettelkasten")
-        ! [ -z "$zettel" ] && kcr send execute-keys "<esc>i[]($(basename $zettel))<esc><a-f>];i"
+        selection=$(kcr get --raw --value selection)
+        zettel_dir=$(kcr get --raw --option zettel_directory)
+        zettel=$(zettel-find "$zettel_dir")
+        ! [ -z "$zettel" ] && kcr send execute-keys "<esc>i[$selection]($(basename $zettel))<esc><a-f>];i"
     }
 }
 
 define-command zettel-find -docstring "Find or create new zettel and open" %{
     connect terminal sh -c %{
-        zettel=$(zettel-find "$HOME/Nextcloud/zettelkasten")
+        zettel_dir=$(kcr get --raw --option zettel_directory)
+        zettel=$(zettel-find "$zettel_dir")
         ! [ -z "$zettel" ] && kcr send edit "$zettel"
     }
 }
@@ -45,38 +54,72 @@ define-command zettel-visit-link -docstring "Visit the link under the cursor" %{
                 ;;
         esac
     }
-    edit %sh{
-        printf "%s/%s" "$HOME/Nextcloud/zettelkasten" "$kak_selection"
+    edit -existing %sh{
+        printf "%s/%s" "$kak_opt_zettel_directory" "$kak_selection"
     }
 }
 
 define-command zettel-backlinks -docstring "Get backlinks for current document" %{
     connect terminal sh -c %{
-        stripped_file=$(basename "$kak_buffile")
-        backlink=$(zettel-backlinks "$stripped_file" "$HOME/Nextcloud/zettelkasten")
+        buf_file=$(kcr get --raw --value buffile)
+        zettel_dir=$(kcr get --raw --option zettel_directory)
+        stripped_file=$(basename "$buf_file")
+        backlink=$(zettel-backlinks "$stripped_file" "$zettel_dir")
         ! [ -z "$backlink" ] && kcr send edit "$backlink"
     }
 }
 
+# User modes
 declare-user-mode zettel
 map global zettel -docstring "Find and open zettel." f ": zettel-find<ret>"
 map global zettel -docstring "Find and insert link to zettel." i ": zettel-insert<ret>"
 map global zettel -docstring "Find and visit backlink." b ": zettel-backlinks<ret>"
 map global zettel -docstring "Visit link under cursor." v ": zettel-visit-link<ret>"
-map global user -docstring "Manage zettelkasten" z ": enter-user-mode zettel<ret>"
+map global user -docstring "Manage zettelkasten." z ": enter-user-mode zettel<ret>"
 
-add-highlighter global/number number-lines -relative -hlcursor
-add-highlighter global/matching show-matching
+declare-user-mode kcr
+map global kcr -docstring "Terminal" t ": connect terminal<ret>"
+map global kcr -docstring "Buffers" b ": connect terminal kcr fzf buffers<ret>"
+map global kcr -docstring "Files" f ": connect terminal kcr fzf files<ret>"
+map global user -docstring "Use kcr" k ": enter-user-mode kcr<ret>"
 
-map global normal <c-t> ": connect terminal<ret>"
+declare-user-mode format
+declare-option -hidden int wrap_value 80
+map global format -docstring "Wrap text." w "| fmt -w %opt{wrap_value}<ret>"
+map global format -docstring "Format text." f ": format<ret>"
+map global user -docstring "Use formatting." f ": enter-user-mode format<ret>"
 
+declare-user-mode clipboard
+declare-option -hidden str clipboard_paste_command "wl-paste -n"
+declare-option -hidden str clipboard_yank_command "wl-copy"
+map global clipboard -docstring "Paste text." p "! %opt{clipboard_paste_command}<ret>"
+map global clipboard -docstring "Yank text." y "<a-|> %opt{clipboard_yank_command}<ret>"
+
+# Highlighters
+add-highlighter global/ number-lines -hlcursor
+add-highlighter global/ show-matching
+
+# Mappings
+
+# Hooks
+# editorconfig
 hook global BufCreate .* %{
     try %{
         editorconfig-load
     }
 }
 
+# Markdown
+hook global WinSetOption filetype=markdown %{
+    set-option window indentwidth 2
+    set-option window formatcmd "prettier --stdin --parser markdown"
+}
+
+
+# Options
 set-option global indentwidth 4
 set-option global grepcmd "rg --column"
+set-option global ui_options terminal_assistant=off terminal_enable_mouse=true terminal_set_title=false terminal_wheel_scroll_amount=10
 
-colorscheme default
+# Colorscheme
+colorscheme solarized-dark-termcolors

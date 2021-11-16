@@ -14,7 +14,7 @@ directory="$1"
 
 zettel=$(
     ls "$directory" |
-    fzf --print-query --layout=reverse --preview-window=down:50% -i --preview="cat $directory/{}"
+    fzf --print-query --layout=reverse --preview-window=down:50% -i --preview="bat --color=always --style=plain $directory/{}"
 )
 
 if [ "$?" -eq 1 ]
