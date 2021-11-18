@@ -3,7 +3,7 @@
 # Use the "logo" key as the primary modifier
 mod="Mod4"
 launcher="fuzzel \
-    --font='JetBrainsMono Nerd Font:size=12' \
+    --font='JetBrains Mono:size=12' \
     --terminal=footclient \
     --width=64 \
     --background=002b36ff \
@@ -152,6 +152,8 @@ done
 # Set keyboard repeat rate
 riverctl set-repeat 50 300
 
+riverctl set-cursor-warp on-output-change
+
 # Make certain views start floating
 riverctl float-filter-add app-id float
 riverctl float-filter-add title "popup title with spaces"
@@ -161,9 +163,12 @@ riverctl csd-filter-add app-id "gedit"
 
 # Environment variables
 riverctl default-layout rivertile
+riverctl spawn "rivertile -main-ratio 0.5 -view-padding 8 -outer-padding 8"
 
-cat "$HOME/.config/river/autorun" |
-while read -r cmd
-do
-    pgrep -f "$cmd" > /dev/null || riverctl spawn "$cmd"
-done
+# Startup programs
+riverctl spawn "foot --server"
+riverctl spawn "waybar"
+riverctl spawn "mako"
+riverctl spawn "kanshi"
+riverctl spawn "/usr/lib/xdg-desktop-portal -r"
+riverctl spawn "/usr/lib/xdg-desktop-portal-wlr"
