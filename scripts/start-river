@@ -2,7 +2,7 @@
 
 export XDG_SESSION_TYPE="wayland"
 export XDG_CURRENT_DESKTOP="river"
-export XKB_DEFAULT_LAYOUT="us"
-export XKB_DEFAULT_OPTIONS="caps:swapescape"
+export XKB_DEFAULT_LAYOUT="us,se"
+export XKB_DEFAULT_OPTIONS="caps:swapescape,grp:alt_space_toggle"
 
 exec dbus-run-session river "$@"

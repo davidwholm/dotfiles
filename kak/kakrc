@@ -16,8 +16,8 @@ plug "andreyorst/plug.kak" noload
 
 # Commands
 # xplr - file manager
-define-command xplr -params .. -file-completion -docstring "Open files with xplr" %{
-    connect terminal xplr %arg{@}
+define-command nnn -params .. -file-completion -docstring "Open files with nnn" %{
+    connect terminal nnn %arg{@}
 }
 
 # zettelkasten
@@ -50,17 +50,11 @@ define-command zettel-find -docstring "Find or create new zettel and open" %{
 define-command zettel-visit-link -docstring "Visit the link under the cursor" %{
     execute-keys %sh{
         printf "<esc>"
-        case "$kak_selection" in
-            ")")
-                printf "<a-i>("
-                ;;
-            "[")
-                printf "f(<a-i>("
-                ;;
-            *)
-                printf "f)<a-i>("
-                ;;
-        esac
+        if ! [ "$kak_selection" = "[" ]
+        then
+          printf "<a-f>[;"
+        fi
+        printf "MLM<a-i>("
     }
     edit -existing %sh{
         printf "%s/%s" "$kak_opt_zettel_directory" "$kak_selection"
@@ -103,6 +97,11 @@ declare-option -hidden str clipboard_yank_command "wl-copy"
 map global clipboard -docstring "Paste text." p "! %opt{clipboard_paste_command}<ret>"
 map global clipboard -docstring "Yank text." y "<a-|> %opt{clipboard_yank_command}<ret>"
 map global user -docstring "Use clipboard." c ": enter-user-mode clipboard<ret>"
+
+# LSP
+evaluate-commands %sh{
+    kak-lsp --kakoune -s $kak_session
+}
 
 # Highlighters
 add-highlighter global/ number-lines -hlcursor
