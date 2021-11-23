@@ -11,8 +11,3 @@ source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 eval "$(zoxide init zsh)"
 
 alias battery="cat /sys/class/power_supply/BAT0/capacity"
-alias ke="kcr edit"
-alias ka="kcr attach"
-alias kc="kcr create"
-alias kk="kcr kill"
-alias kl="kcr list"
